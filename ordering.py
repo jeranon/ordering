@@ -27,7 +27,7 @@ def exitApp():
 def _display_menu(): 
     clear() 
     print("Welcome to the Home page.") 
-    options = {'S': scan, 'O': order, 'R': receive, 'H': history, 'X': exitApp}
+    options = {'S': scan, 'O': order, 'R': receive, 'X': exitApp}
     for option in options: 
         print(f"Press '{option}' to navigate to the {options[option].__name__} page.")
     key = msvcrt.getch().decode("utf-8").upper()
@@ -197,79 +197,5 @@ def get_ordered_items():
     for i, item in enumerate(sortedData):
         print("{} - {} - {} - {} - {} - {}".format(i+1, item["itemCode"], item["supplier"], item["description"], item["orderQuantity"], item["orderDate"][:10]))
     return data
-
-def combine():
-    combined_data = []
-    lock_file("scanned.json")
-    lock_file("ordered.json")
-    lock_file("history.json")
-    with open("scanned.json", "r") as f:
-        scanned_data = json.load(f)
-        for item in scanned_data:
-            if "orderDate" not in item:
-                item["orderDate"] = "no data"
-            if "receivedDate" not in item:
-                item["receivedDate"] = "no data"
-        combined_data.extend(scanned_data)
-    with open("ordered.json", "r") as f:
-        ordered_data = json.load(f)
-        for item in ordered_data:
-            if "receivedDate" not in item:
-                item["receivedDate"] = "no data"
-        combined_data.extend(ordered_data)
-    with open("history.json", "r") as f:
-        history_data = json.load(f)
-        combined_data.extend(history_data)
-    combined_data = sorted(combined_data, key=lambda x: x["timeStamp"], reverse=True)
-    for item in combined_data:
-        item["itemCode"] = item["itemCode"][:20]
-        item["description"] = item["description"][:40]
-        if "timeStamp" in item:
-            item["timeStamp"] = item["timeStamp"][:10]
-        if "orderDate" in item:
-            item["orderDate"] = item["orderDate"][:10]
-        if "receivedDate" in item:
-            item["receivedDate"] = item["receivedDate"][:10]
-    return combined_data
-
-def history():
-    combined_data = combine()
-    page_number = 1
-    while True:
-        key = msvcrt.getwch()
-        clear()
-        filtered_data = combined_data
-        print("History page.")
-        print("Press 'Enter' to view all items or scan an item tag to filter the list.")
-        print("Use 'Page Up' and 'Page Down' to navigate between pages.")
-        print("Press 'Escape' to return to the home page.")
-        first_char = msvcrt.getche().decode("utf-8")
-        if first_char == chr(27): # Escape key
-            home()
-        elif first_char == chr(13): # Enter key
-            pass
-        else:
-            scanned_text = first_char + input()
-            filtered_data = [item for item in combined_data if item["itemCode"] == scanned_text]
-        total_pages = math.ceil(len(filtered_data) / 30)
-        start_index = (page_number - 1) * 30
-        end_index = start_index + 30
-        current_page_data = filtered_data[start_index:end_index]
-        if len(current_page_data) == 0:
-            print("No data found.")
-        else:
-            print("{:<20}  {:<40}  {:<10}  {:<10}  {:<10}".format("Item", "Description", "Scanned", "Ordered", "Received"))
-            for item in current_page_data:
-                print("{itemCode:<20}  {description:<40}  {timeStamp:<10}  {orderDate:<10}  {receivedDate:<10}".format(**item))
-            if page_number > 1:
-                print("Press 'Page Up' to view previous page.")
-            if page_number < total_pages:
-                print("Press 'Page Down' to view next page.")
-        if key == '\xE0':
-            key = msvcrt.getwch()
-            if key == '\x48' and page_number > 1: # Page Up key
-                page_number -= 1
-            elif key == '\x51' and page_number < total_pages: # Page Down key
-                page_number += 1
 
 home()
