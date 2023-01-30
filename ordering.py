@@ -95,7 +95,12 @@ def display_items():
     data = sorted(data, key=lambda x: x["supplier"])
     print("line# - itemCode - supplier - description - orderQuantity - timeStamp")
     for i, item in enumerate(data):
-        print("{} - {} - {} - {} - {} - {}".format(i+1, item["itemCode"], item["supplier"], item["description"], item["orderQuantity"], item["timeStamp"][:10]))
+        item_code = item["itemCode"][:18].ljust(18)
+        vendor = item["supplier"][:18].ljust(18)
+        description = item["description"][:40].ljust(40)
+        order_quantity = str(item["orderQuantity"])[:20].ljust(20)
+        time_stamp = item["timeStamp"][:10].ljust(10)
+        print("{} - {} - {} - {} - {} - {}".format(i+1, item_code, vendor, description, order_quantity, time_stamp))
     return data
 
 def process_order(line_number, data):
@@ -191,7 +196,12 @@ def get_ordered_items():
     sortedData = sorted(data, key=lambda x: x["supplier"])
     print("line# - itemCode - supplier - description - orderQuantity - orderDate")
     for i, item in enumerate(sortedData):
-        print("{} - {} - {} - {} - {} - {}".format(i+1, item["itemCode"], item["supplier"], item["description"], item["orderQuantity"], item["orderDate"][:10]))
+        item_code = item["itemCode"][:18].ljust(18)
+        vendor = item["supplier"][:18].ljust(18)
+        description = item["description"][:40].ljust(40)
+        order_quantity = str(item["orderQuantity"])[:20].ljust(20)
+        order_date = item["orderDate"][:10].ljust(10)
+        print("{} - {} - {} - {} - {} - {}".format(i+1, item_code, vendor, description, order_quantity, order_date))
     return sortedData
 
 home()
