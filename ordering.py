@@ -2,7 +2,6 @@ import json
 import os
 import msvcrt
 import datetime
-import sys
 
 os.system("mode con cols=160 lines=40")
 
@@ -19,15 +18,12 @@ def lock_file(file_name):
             msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 
 def home(): 
-    _display_menu() 
-
-def exitApp():
-    sys.exit()
+    _display_menu()
 
 def _display_menu(): 
     clear() 
     print("Welcome to the Home page.") 
-    options = {'S': scan, 'O': order, 'R': receive, 'X': exitApp}
+    options = {'S': scan, 'O': order, 'R': receive}
     for option in options: 
         print(f"Press '{option}' to navigate to the {options[option].__name__} page.")
     key = msvcrt.getch().decode("utf-8").upper()
