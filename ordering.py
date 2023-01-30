@@ -176,13 +176,13 @@ def process_receive(line_number, data):
     lock_file("data/ordered.json")
     item = data[line_number - 1]
     item["receivedDate"] = datetime.datetime.now().isoformat()
-    with open("history.json", "r") as f:
+    with open("data/history.json", "r") as f:
         history_data = json.load(f)
     history_data.append(item)
-    with open("history.json", "w") as f:
+    with open("data/history.json", "w") as f:
         json.dump(history_data, f, indent=4)
     del data[line_number - 1]
-    with open("ordered.json", "w") as f:
+    with open("data/ordered.json", "w") as f:
         json.dump(data, f)
     clear()
     print("Item has been received and has been archived.")
