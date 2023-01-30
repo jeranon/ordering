@@ -2,7 +2,7 @@ import json
 import os
 import msvcrt
 import datetime
-import math
+import sys
 
 os.system("mode con cols=160 lines=40")
 
@@ -22,7 +22,7 @@ def home():
     _display_menu() 
 
 def exitApp():
-    exit
+    sys.exit()
 
 def _display_menu(): 
     clear() 
