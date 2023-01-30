@@ -93,14 +93,17 @@ def display_items():
     with open("data/scanned.json", "r") as f:
         data = json.load(f)
     data = sorted(data, key=lambda x: x["supplier"])
-    print("line# - itemCode - supplier - description - orderQuantity - timeStamp")
+    header = "line# - itemCode - supplier - description - orderQuantity - timeStamp"
+    header = header[:5].ljust(5) + " - " + header[6:24].ljust(18) + " - " + header[25:34].ljust(18) + " - " + header[35:74].ljust(40) + " - " + header[75:95].ljust(20) + " - " + header[96:].ljust(10)
+    print(header)
     for i, item in enumerate(data):
-        item_code = item["itemCode"][:18].ljust(18)
-        vendor = item["supplier"][:18].ljust(18)
+        itemCode = item["itemCode"][:18].ljust(18)
+        supplier = item["supplier"][:18].ljust(18)
         description = item["description"][:40].ljust(40)
-        order_quantity = str(item["orderQuantity"])[:20].ljust(20)
-        time_stamp = item["timeStamp"][:10].ljust(10)
-        print("{} - {} - {} - {} - {} - {}".format(i+1, item_code, vendor, description, order_quantity, time_stamp))
+        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
+        timeStamp = item["timeStamp"][:10].ljust(10)
+        line = str(i+1).ljust(5) + " - " + itemCode + " - " + supplier + " - " + description + " - " + orderQuantity + " - " + timeStamp
+        print(line)
     return data
 
 def process_order(line_number, data):
@@ -194,14 +197,17 @@ def get_ordered_items():
     with open("data/ordered.json", "r") as f:
         data = json.load(f)
     sortedData = sorted(data, key=lambda x: x["supplier"])
-    print("line# - itemCode - supplier - description - orderQuantity - orderDate")
+    header = "line# - itemCode - supplier - description - orderQuantity - orderDate"
+    header = header[:5].ljust(5) + " - " + header[6:24].ljust(18) + " - " + header[25:34].ljust(18) + " - " + header[35:74].ljust(40) + " - " + header[75:95].ljust(20) + " - " + header[96:].ljust(10)
+    print(header)
     for i, item in enumerate(sortedData):
-        item_code = item["itemCode"][:18].ljust(18)
-        vendor = item["supplier"][:18].ljust(18)
+        itemCode = item["itemCode"][:18].ljust(18)
+        supplier = item["supplier"][:18].ljust(18)
         description = item["description"][:40].ljust(40)
-        order_quantity = str(item["orderQuantity"])[:20].ljust(20)
-        order_date = item["orderDate"][:10].ljust(10)
-        print("{} - {} - {} - {} - {} - {}".format(i+1, item_code, vendor, description, order_quantity, order_date))
+        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
+        orderDate = item["orderDate"][:10].ljust(10)
+        line = str(i+1).ljust(5) + " - " + itemCode + " - " + supplier + " - " + description + " - " + orderQuantity + " - " + orderDate
+        print(line)
     return sortedData
 
 home()
