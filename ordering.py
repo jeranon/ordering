@@ -93,8 +93,8 @@ def display_items():
     with open("data/scanned.json", "r") as f:
         data = json.load(f)
     data = sorted(data, key=lambda x: x["supplier"])
-    header = "line# - itemCode - supplier - description - orderQuantity - timeStamp"
-    header = header[:5].ljust(5) + " - " + header[6:24].ljust(18) + " - " + header[25:34].ljust(18) + " - " + header[35:74].ljust(40) + " - " + header[75:95].ljust(20) + " - " + header[96:].ljust(10)
+    header = "line#ItemCodeSupplierDescriptionQtyScanDate"
+    header = header[:5].ljust(5) + "  " + header[5:13].ljust(18) + "  " + header[13:21].ljust(18) + "  " + header[21:32].ljust(40) + "  " + header[32:35].ljust(20) + "  " + header[35:].ljust(10)
     print(header)
     for i, item in enumerate(data):
         itemCode = item["itemCode"][:18].ljust(18)
@@ -102,7 +102,7 @@ def display_items():
         description = item["description"][:40].ljust(40)
         orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
         timeStamp = item["timeStamp"][:10].ljust(10)
-        line = str(i+1).ljust(5) + " - " + itemCode + " - " + supplier + " - " + description + " - " + orderQuantity + " - " + timeStamp
+        line = str(i+1).ljust(5) + "  " + itemCode + "  " + supplier + "  " + description + "  " + orderQuantity + "  " + timeStamp
         print(line)
     return data
 
@@ -197,8 +197,8 @@ def get_ordered_items():
     with open("data/ordered.json", "r") as f:
         data = json.load(f)
     sortedData = sorted(data, key=lambda x: x["supplier"])
-    header = "line# - itemCode - supplier - description - orderQuantity - orderDate"
-    header = header[:5].ljust(5) + " - " + header[6:24].ljust(18) + " - " + header[25:34].ljust(18) + " - " + header[35:74].ljust(40) + " - " + header[75:95].ljust(20) + " - " + header[96:].ljust(10)
+    header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
+    header = header[:5].ljust(5) + "  " + header[5:13].ljust(18) + "  " + header[13:21].ljust(18) + "  " + header[21:32].ljust(40) + "  " + header[32:35].ljust(20) + "  " + header[35:].ljust(10)
     print(header)
     for i, item in enumerate(sortedData):
         itemCode = item["itemCode"][:18].ljust(18)
@@ -206,7 +206,7 @@ def get_ordered_items():
         description = item["description"][:40].ljust(40)
         orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
         orderDate = item["orderDate"][:10].ljust(10)
-        line = str(i+1).ljust(5) + " - " + itemCode + " - " + supplier + " - " + description + " - " + orderQuantity + " - " + orderDate
+        line = str(i+1).ljust(5) + "  " + itemCode + "  " + supplier + "  " + description + "  " + orderQuantity + "  " + orderDate
         print(line)
     return sortedData
 
