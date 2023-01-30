@@ -18,9 +18,9 @@ def lock_file(file_name):
             msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 
 def home(): 
-    _display_menu()
+    display_menu()
 
-def _display_menu(): 
+def display_menu(): 
     clear() 
     print("Welcome to the Home page.") 
     options = {'S': scan, 'O': order, 'R': receive}
@@ -32,7 +32,7 @@ def _display_menu():
         options[key]()
     else:
         print("Invalid option.")
-        _display_menu()
+        display_menu()
 
 def scan():
     print("Welcome to the Scan page.")
