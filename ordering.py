@@ -49,19 +49,19 @@ def scan():
         process_scan(scanned_text)
 
 def process_scan(scanned_text):
-    lock_file("current.txt")
-    lock_file("scanned.json")
-    lock_file("ordered.json")
+    lock_file("data/current.txt")
+    lock_file("data/scanned.json")
+    lock_file("data/ordered.json")
     # read the current.txt file to get the current index number
-    with open("current.txt", "r") as f:
+    with open("data/current.txt", "r") as f:
         current_index = f.read()
     try:
         # parse the scanned text
         item_code, supplier, description, order_quantity = scanned_text.split("{")[0], scanned_text.split("{")[1].split("|")[0], scanned_text.split("|")[1].split("}")[0], scanned_text.split("}")[1]
         # check if the item already exists in the scanned.json file
-        with open("scanned.json", "r") as f:
+        with open("data/scanned.json", "r") as f:
             scanned_data = json.load(f)
-        with open("ordered.json", "r") as f:
+        with open("data/ordered.json", "r") as f:
             ordered_data = json.load(f)
         for item in scanned_data:
             if item["itemCode"] == item_code:
@@ -81,10 +81,10 @@ def process_scan(scanned_text):
         time_stamp = datetime.datetime.now().isoformat()
         # append the scanned data to the scanned.json
         scanned_data.append({"indexNumber": current_index, "itemCode": item_code, "supplier": supplier, "description": description, "orderQuantity": order_quantity, "timeStamp": time_stamp})
-        with open("scanned.json", "w") as f:
+        with open("data/scanned.json", "w") as f:
             json.dump(scanned_data, f)
         # increment the current index number
-        with open("current.txt", "w") as f:
+        with open("data/current.txt", "w") as f:
             new_index = hex(int(current_index, 16) + 1)[2:].zfill(8)
             f.write(new_index)
     except:
@@ -93,8 +93,8 @@ def process_scan(scanned_text):
     scan()
 
 def display_items():
-    lock_file("scanned.json")
-    with open("scanned.json", "r") as f:
+    lock_file("data/scanned.json")
+    with open("data/scanned.json", "r") as f:
         data = json.load(f)
     data = sorted(data, key=lambda x: x["supplier"])
     print("line# - itemCode - supplier - description - orderQuantity - timeStamp")
@@ -103,17 +103,17 @@ def display_items():
     return data
 
 def process_order(line_number, data):
-    lock_file("ordered.json")
-    lock_file("scanned.json")
+    lock_file("data/ordered.json")
+    lock_file("data/scanned.json")
     item = data[line_number - 1]
     item["orderDate"] = datetime.datetime.now().isoformat()
-    with open("ordered.json", "r") as f:
+    with open("data/ordered.json", "r") as f:
         ordered_data = json.load(f)
     ordered_data.append(item)
-    with open("ordered.json", "w") as f:
+    with open("data/ordered.json", "w") as f:
         json.dump(ordered_data, f, indent=4)
     del data[line_number - 1]
-    with open("scanned.json", "w") as f:
+    with open("data/scanned.json", "w") as f:
         json.dump(data, f)
     clear()
     print("Item has been ordered and removed from scanned items.")
@@ -172,25 +172,25 @@ def receive():
             receive()
 
 def process_receive(line_number, data):
-    lock_file("history.json")
-    lock_file("ordered.json")
+    lock_file("data/history.json")
+    lock_file("data/ordered.json")
     item = data[line_number - 1]
     item["receivedDate"] = datetime.datetime.now().isoformat()
-    with open("history.json", "r") as f:
+    with open("data/history.json", "r") as f:
         history_data = json.load(f)
     history_data.append(item)
-    with open("history.json", "w") as f:
+    with open("data/history.json", "w") as f:
         json.dump(history_data, f, indent=4)
     del data[line_number - 1]
-    with open("ordered.json", "w") as f:
+    with open("data/ordered.json", "w") as f:
         json.dump(data, f)
     clear()
     print("Item has been received and has been archived.")
     receive()
 
 def get_ordered_items():
-    lock_file("ordered.json")
-    with open("ordered.json", "r") as f:
+    lock_file("data/ordered.json")
+    with open("data/ordered.json", "r") as f:
         data = json.load(f)
     sortedData = sorted(data, key=lambda x: x["supplier"])
     print("line# - itemCode - supplier - description - orderQuantity - orderDate")
