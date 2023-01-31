@@ -71,7 +71,7 @@ if __name__ == '__main__':
     with open("data/credentials.json", "r") as f:
         credentials = json.load(f)
 
-    gmail_user = credentials["email"]
+    gmail_user = credentials["username"]
     gmail_password = credentials["password"]
     to = credentials["to"]
 
