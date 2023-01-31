@@ -17,26 +17,38 @@ def lock_file(file_name):
         finally:
             msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 
+def print_yellow(text):
+    print("\033[38;2;255;255;175m" + text + "\033[0m")
+
+def print_green(text):
+    print("\033[38;2;175;255;175m" + text + "\033[0m")
+
+def print_red(text):
+    print("\033[38;2;255;105;105m" + text + "\033[0m")
+
+def print_blue(text):
+    print("\033[38;2;175;175;255m" + text + "\033[0m")
+
 def home(): 
     display_menu()
 
 def display_menu(): 
     clear() 
-    print("Welcome to the Home page.") 
+    print_blue("Welcome to the Home page.") 
     options = {'S': scan, 'O': order, 'R': receive}
     for option in options: 
-        print(f"Press '{option}' to navigate to the {options[option].__name__} page.")
+        print_green(f"Press '{option}' to navigate to the {options[option].__name__} page.")
     key = msvcrt.getch().decode("utf-8").upper()
     if key in options: 
         clear() 
         options[key]()
     else:
-        print("Invalid option.")
+        print_red("Invalid option.")
         display_menu()
 
 def scan():
-    print("Welcome to the Scan page.")
-    print("Scan the text string or Press Escape to return to the Home page.")
+    print_blue("Welcome to the Scan page.")
+    print_green("Scan a barcode or Press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -62,17 +74,17 @@ def process_scan(scanned_text):
         for item in scanned_data:
             if item["itemCode"] == item_code:
                 clear()
-                print(f"{item_code} - {description} has already been scanned.")
+                print_yellow(f"{item_code} - {description} has already been scanned.")
                 scan()
                 return
         for item in ordered_data:
             if item["itemCode"] == item_code:
                 clear()
-                print(f"{item_code} - {description} has already been ordered.")
+                print_yellow(f"{item_code} - {description} has already been ordered.")
                 scan()
                 return
         clear()
-        print(f"{item_code} - {description} has been added to the order list.")
+        print_green(f"{item_code} - {description} has been added to the order list.")
         # get the current time
         time_stamp = datetime.datetime.now().isoformat()
         # append the scanned data to the scanned.json
@@ -85,7 +97,7 @@ def process_scan(scanned_text):
             f.write(new_index)
     except:
         clear()
-        print("Invalid scan, ignoring input.")
+        print_red("Invalid scan, ignoring input.")
     scan()
 
 def display_items():
@@ -95,7 +107,10 @@ def display_items():
     data = sorted(data, key=lambda x: x["supplier"])
     header = "line#ItemCodeSupplierDescriptionQtyScanDate"
     header = header[:5].ljust(5) + "  " + header[5:13].ljust(18) + "  " + header[13:21].ljust(18) + "  " + header[21:32].ljust(40) + "  " + header[32:35].ljust(20) + "  " + header[35:].ljust(10)
+    print_blue("Welcome to the Order Page.")
     print(header)
+    underline = '_' * len(header)
+    print(underline)
     for i, item in enumerate(data):
         itemCode = item["itemCode"][:18].ljust(18)
         supplier = item["supplier"][:18].ljust(18)
@@ -120,10 +135,9 @@ def process_order(line_number, data):
     with open("data/scanned.json", "w") as f:
         json.dump(data, f)
     clear()
-    print("Item has been ordered and removed from scanned items.")
-    clear()
+    print_green("Item has been ordered.")
     display_items()
-    print("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
+    print_green("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -135,12 +149,12 @@ def process_order(line_number, data):
             process_order(line_number, data)
         except ValueError:
             clear()
-            print("Invalid input, please enter a valid line number.")
+            print_red("Invalid input, please enter a valid line number.")
             order()
 
 def order():
     data = display_items()
-    print("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
+    print_green("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -155,12 +169,12 @@ def order():
             order()
         except ValueError:
             clear()
-            print("Invalid input, please enter a valid line number.")
+            print_red("Invalid input, please enter a valid line number.")
             order()
 
 def receive():
     data = get_ordered_items()
-    print("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
+    print_green("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -172,7 +186,7 @@ def receive():
             process_receive(line_number, data)
         except ValueError:
             clear()
-            print("Invalid input, please enter a valid line number.")
+            print_red("Invalid input, please enter a valid line number.")
             receive()
 
 def process_receive(line_number, data):
@@ -189,7 +203,7 @@ def process_receive(line_number, data):
     with open("data/ordered.json", "w") as f:
         json.dump(data, f)
     clear()
-    print("Item has been received and has been archived.")
+    print_green("Item has been received and has been archived.")
     receive()
 
 def get_ordered_items():
@@ -199,7 +213,10 @@ def get_ordered_items():
     sortedData = sorted(data, key=lambda x: x["supplier"])
     header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
     header = header[:5].ljust(5) + "  " + header[5:13].ljust(18) + "  " + header[13:21].ljust(18) + "  " + header[21:32].ljust(40) + "  " + header[32:35].ljust(20) + "  " + header[35:].ljust(10)
+    print_blue("Welcome to the Receive Page.")
     print(header)
+    underline = '_' * len(header)
+    print(underline)
     for i, item in enumerate(sortedData):
         itemCode = item["itemCode"][:18].ljust(18)
         supplier = item["supplier"][:18].ljust(18)
@@ -211,3 +228,4 @@ def get_ordered_items():
     return sortedData
 
 home()
+
