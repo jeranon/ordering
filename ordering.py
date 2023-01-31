@@ -110,7 +110,7 @@ def display_items():
         data = json.load(f)
     data = sorted(data, key=lambda x: x["supplier"])
     header = "line#ItemCodeSupplierDescriptionQtyScanDate"
-    header = "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |"
+    header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
     print_blue("Welcome to the Order Page.\n")
     print(" " + Format.underline + header + Format.end + " ")
     for i, item in enumerate(data):
@@ -214,7 +214,7 @@ def get_ordered_items():
         data = json.load(f)
     sortedData = sorted(data, key=lambda x: x["supplier"])
     header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
-    header = "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |"
+    header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
     print_blue("Welcome to the Receive Page.\n")
     print(" " + Format.underline + header + Format.end + " ")
     for i, item in enumerate(sortedData):
