@@ -3,6 +3,10 @@ import os
 import msvcrt
 import datetime
 
+class Format:
+    end = '\033[0m'
+    underline = '\033[4m'
+
 os.system("mode con cols=160 lines=40")
 
 def clear():
@@ -34,7 +38,7 @@ def home():
 
 def display_menu(): 
     clear() 
-    print_blue("Welcome to the Home page.") 
+    print_blue("Welcome to the Home page.\n") 
     options = {'S': scan, 'O': order, 'R': receive}
     for option in options: 
         print_green(f"Press '{option}' to navigate to the {options[option].__name__} page.")
@@ -47,7 +51,7 @@ def display_menu():
         display_menu()
 
 def scan():
-    print_blue("Welcome to the Scan page.")
+    print_blue("Welcome to the Scan page.\n")
     print_green("Scan a barcode or Press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
@@ -106,19 +110,17 @@ def display_items():
         data = json.load(f)
     data = sorted(data, key=lambda x: x["supplier"])
     header = "line#ItemCodeSupplierDescriptionQtyScanDate"
-    header = header[:5].ljust(5) + "  " + header[5:13].ljust(18) + "  " + header[13:21].ljust(18) + "  " + header[21:32].ljust(40) + "  " + header[32:35].ljust(20) + "  " + header[35:].ljust(10)
-    print_blue("Welcome to the Order Page.")
-    print(header)
-    underline = '_' * len(header)
-    print(underline)
+    header = "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |"
+    print_blue("Welcome to the Order Page.\n")
+    print(" " + Format.underline + header + Format.end + " ")
     for i, item in enumerate(data):
         itemCode = item["itemCode"][:18].ljust(18)
         supplier = item["supplier"][:18].ljust(18)
         description = item["description"][:40].ljust(40)
         orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
         timeStamp = item["timeStamp"][:10].ljust(10)
-        line = str(i+1).ljust(5) + "  " + itemCode + "  " + supplier + "  " + description + "  " + orderQuantity + "  " + timeStamp
-        print(line)
+        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + timeStamp + " |"
+        print(" " + line + " ")
     return data
 
 def process_order(line_number, data):
@@ -137,7 +139,7 @@ def process_order(line_number, data):
     clear()
     print_green("Item has been ordered.")
     display_items()
-    print_green("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
+    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -154,7 +156,7 @@ def process_order(line_number, data):
 
 def order():
     data = display_items()
-    print_green("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
+    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -174,7 +176,7 @@ def order():
 
 def receive():
     data = get_ordered_items()
-    print_green("Enter the line number of the item you want to process, or press Escape to return to the Home page.")
+    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
     first_char = msvcrt.getche().decode("utf-8")
     if first_char == '\x1b':
         home()
@@ -212,20 +214,17 @@ def get_ordered_items():
         data = json.load(f)
     sortedData = sorted(data, key=lambda x: x["supplier"])
     header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
-    header = header[:5].ljust(5) + "  " + header[5:13].ljust(18) + "  " + header[13:21].ljust(18) + "  " + header[21:32].ljust(40) + "  " + header[32:35].ljust(20) + "  " + header[35:].ljust(10)
-    print_blue("Welcome to the Receive Page.")
-    print(header)
-    underline = '_' * len(header)
-    print(underline)
+    header = "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |"
+    print_blue("Welcome to the Receive Page.\n")
+    print(" " + Format.underline + header + Format.end + " ")
     for i, item in enumerate(sortedData):
         itemCode = item["itemCode"][:18].ljust(18)
         supplier = item["supplier"][:18].ljust(18)
         description = item["description"][:40].ljust(40)
         orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
         orderDate = item["orderDate"][:10].ljust(10)
-        line = str(i+1).ljust(5) + "  " + itemCode + "  " + supplier + "  " + description + "  " + orderQuantity + "  " + orderDate
-        print(line)
+        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + orderDate + " |"
+        print(" " + line + " ")
     return sortedData
 
 home()
-
