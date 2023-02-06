@@ -15,8 +15,19 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  background-color: #ddd;
+  background-color: #ccc;
   padding: 20px;
+}
+
+h1 {
+  display: block;
+  width: 100%;
+  font-size: 30px;
+  font-size: 70px;
+  font-weight: 600;
+  color: #fdfdfe;
+  text-shadow: 0px 0px 5px #333, 0px 0px 10px #333, 0px 0px 10px #333,
+    0px 0px 20px #333;
 }
 
 .card {
@@ -36,7 +47,6 @@ body {
 
 h2.title {
   font-size: 24px;
-  margin-top: 0;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -64,10 +74,11 @@ h3.subtitle {
 
 p.index {
   font-size: 12px;
-  color: #000;
+  color: #333;
   bottom: 10px;
   right: 10px;
   text-align: right;
+  font-weight: bold;
 }
 
 .red-background {
