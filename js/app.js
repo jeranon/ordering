@@ -1,4 +1,5 @@
-const cardContainer = document.getElementById("card-container");
+const scannedContainer = document.getElementById("scanned");
+const orderedContainer = document.getElementById("ordered");
 
 // Async function to fetch data from the specified URL and return the data in JSON format
 async function getData(url) {
@@ -168,13 +169,13 @@ async function displayCards() {
   // Display all items from scanned.json
   for (let i = 0; i < scannedData.length; i++) {
     const createdCard = await createCard(scannedData[i], null);
-    cardContainer.appendChild(createdCard);
+    scannedContainer.appendChild(createdCard);
   }
 
   // Display all items from ordered.json
   for (let i = 0; i < orderedData.length; i++) {
     const createdCard = await createCard(orderedData[i], orderedData[i]);
-    cardContainer.appendChild(createdCard);
+    orderedContainer.appendChild(createdCard);
   }
 }
 
