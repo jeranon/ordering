@@ -1,10 +1,22 @@
-#card-container {
+body {
+  padding: 20px 20px 20px 20px;
+}
+
+#scanned {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #bbb;
+  padding: 20px;
+}
+#ordered {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  background-color: #ddd;
+  padding: 20px;
 }
 
 .card {
@@ -14,13 +26,19 @@
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  margin: 5px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.content {
+  border-radius: 5px;
 }
 
 h2.title {
   font-size: 24px;
   margin-top: 0;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 h3.subtitle {
@@ -28,6 +46,8 @@ h3.subtitle {
   margin-top: 0;
   color: gray;
   margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .card-details {
