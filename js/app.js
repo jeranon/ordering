@@ -166,6 +166,40 @@ async function displayCards() {
   const scannedData = await getData("./data/scanned.json");
   const orderedData = await getData("./data/ordered.json");
 
+  // added sorting to sort first by vendor, then by itemCode
+  orderedData.sort(function (a, b) {
+    if (a.supplier < b.supplier) {
+      return -1;
+    }
+    if (a.supplier > b.supplier) {
+      return 1;
+    }
+    if (a.itemCode < b.itemCode) {
+      return -1;
+    }
+    if (a.itemCode > b.itemCode) {
+      return 1;
+    }
+    return 0;
+  });
+
+  // added sorting to sort first by vendor, then by itemCode
+  scannedData.sort(function (a, b) {
+    if (a.supplier < b.supplier) {
+      return -1;
+    }
+    if (a.supplier > b.supplier) {
+      return 1;
+    }
+    if (a.itemCode < b.itemCode) {
+      return -1;
+    }
+    if (a.itemCode > b.itemCode) {
+      return 1;
+    }
+    return 0;
+  });
+
   // Display all items from scanned.json
   for (let i = 0; i < scannedData.length; i++) {
     const createdCard = await createCard(scannedData[i], null);
