@@ -136,15 +136,16 @@ async function createCard(scannedData = {}, orderedData = {}) {
     const orderedDate = new Date(scannedData.orderDate || 0);
     const today = new Date();
     const daysDiff = Math.floor((today - orderedDate) / (1000 * 60 * 60 * 24));
-    if (orderedDateDiff !== null) {
-      if (orderedDateDiff >= 4) {
+    if (orderedDate !== null) {
+      if (daysDiff >= 4) {
         card.classList.add("red-background");
-      } else if (orderedDateDiff > 2 && orderedDateDiff < 4) {
+      } else if (daysDiff > 2 && daysDiff < 4) {
         card.classList.add("yellow-background");
-      } else if (orderedDateDiff <= 2) {
+      } else if (daysDiff <= 2) {
         card.classList.add("green-background");
       }
-    } else if (scannedDateDiff !== null) {
+    } else if (scannedDate !== null) {
+      const scannedDateDiff = getBusinessDayDifference(scannedDate, today);
       if (scannedDateDiff <= 1) {
         card.classList.add("green-background");
       } else if (scannedDateDiff > 1) {
