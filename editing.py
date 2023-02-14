@@ -95,11 +95,11 @@ def display_menu():
     clear()
     print_blue("Welcome to the Home Page\n")
     options = {'S': scan, 'O': order, 'H': history}
-    for option in options: 
-        print_green(f"Press '{option}' to navigate to the {options[option].__name__} editing page.")
-    key = msvcrt.getch().decode("utf-8").upper()
-    if key in options: 
-        clear() 
+    for option in options:
+        print_green(f"Enter '{option}' to navigate to the {options[option].__name__} editing page.")
+    key = input().upper()
+    if key in options:
+        clear()
         options[key]()
     else:
         print_red("Invalid option.")
@@ -107,14 +107,63 @@ def display_menu():
 
 def scan():
     print_blue("Welcome to the page to edit scanned.json\n")
-    display_scanned()
-    print_green("\nSelect the line number of the item you would like to edit, or press Escape to return to the home page.")
-    first_char = msvcrt.getche().decode("utf-8")
-    if first_char == '\x1b':
+    sorted_data = display_scanned()
+    print_green("\nEnter the line number of the item you would like to edit, or enter 'x' to return to the home page.")
+    key = input().upper()
+    if key == 'X':
         home()
-    else:
-        scan()
-
+        return
+    try:
+        line_number = int(key) - 1
+        if line_number >= len(sorted_data) or line_number < 0:
+            clear()
+            print_red("Invalid input. Line number out of range.")
+            return scan()
+        item = sorted_data[line_number]
+        clear()
+        print_yellow(f"\nSelected item: {item}")
+        print_green("\nWould you like to (D)elete this object or (E)dit this object?")
+        key = input().upper()
+        if key == 'D':
+            delete_item(item, 'data/scanned.json')
+            clear()
+            print_green("\nItem has been deleted.")
+            scan()
+        elif key == 'E':
+            i = 1
+            keys = list(item.keys())
+            clear()
+            print_yellow("Editing object: ")
+            for k in keys:
+                print(f"{i}. {k}: {item[k]}")
+                i += 1
+            print_green("Which line would you like to edit?")
+            try:
+                line_number = int(input()) - 1
+                if line_number >= len(keys) or line_number < 0:
+                    print_red("Invalid input. Line number out of range.")
+                    return scan()
+                clear()
+                print_yellow(f"Editing key: {keys[line_number]}")
+                new_value = input("Enter a new value: ")
+                new_item = item.copy()
+                new_item[keys[line_number]] = new_value
+                edit_item(item, new_item, 'data/scanned.json')
+                clear()
+                print_green("\nItem has been edited.")
+                scan()
+            except:
+                clear()
+                print_red("Invalid input. Please enter a valid line number.")
+                return scan()
+        else:
+            clear()
+            print_red("Invalid input. Please enter 'D' or 'E'.")
+            return scan()
+    except:
+        clear()
+        print_red("Invalid input. Please enter a valid line number.")
+        return scan()
 
 def order():
     print_blue("Welcome to the page to edit ordered.json\n")
