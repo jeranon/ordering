@@ -1,6 +1,49 @@
 const scannedContainer = document.getElementById("scanned");
 const orderedContainer = document.getElementById("ordered");
 
+var currentDataString1 = "";
+var currentDataString2 = "";
+
+// function to check for changes in scanned.json
+function checkScannedJson() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "../data/scanned.json", true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      var resultAsString = xhr.responseText;
+      if (!currentDataString1) currentDataString1 = resultAsString;
+
+      if (currentDataString1 !== resultAsString) {
+        window.location.reload(1);
+      }
+      currentDataString1 = resultAsString;
+    }
+  };
+  xhr.send();
+}
+
+// function to check for changes in ordered.json
+function checkOrderedJson() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "../data/ordered.json", true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      var resultAsString = xhr.responseText;
+      if (!currentDataString2) currentDataString2 = resultAsString;
+
+      if (currentDataString2 !== resultAsString) {
+        window.location.reload(1);
+      }
+      currentDataString2 = resultAsString;
+    }
+  };
+  xhr.send();
+}
+
+// run the functions every 1 seconds
+setInterval(checkScannedJson, 1000);
+setInterval(checkOrderedJson, 1000);
+
 // Async function to fetch data from the specified URL and return the data in JSON format
 async function getData(url) {
   const response = await fetch(url, {
