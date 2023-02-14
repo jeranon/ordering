@@ -1,20 +1,20 @@
 const scannedContainer = document.getElementById("scanned");
 const orderedContainer = document.getElementById("ordered");
 
-var currentDataString1 = "";
-var currentDataString2 = "";
+let currentDataString1 = "";
+let currentDataString2 = "";
 
 // function to check for changes in scanned.json
 function checkScannedJson() {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", "../data/scanned.json", true);
-  xhr.onreadystatechange = function() {
+  xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
       var resultAsString = xhr.responseText;
       if (!currentDataString1) currentDataString1 = resultAsString;
 
       if (currentDataString1 !== resultAsString) {
-        window.location.reload(1);
+        displayCards();
       }
       currentDataString1 = resultAsString;
     }
@@ -26,13 +26,13 @@ function checkScannedJson() {
 function checkOrderedJson() {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", "../data/ordered.json", true);
-  xhr.onreadystatechange = function() {
+  xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
       var resultAsString = xhr.responseText;
       if (!currentDataString2) currentDataString2 = resultAsString;
 
       if (currentDataString2 !== resultAsString) {
-        window.location.reload(1);
+        displayCards();
       }
       currentDataString2 = resultAsString;
     }
@@ -133,10 +133,16 @@ async function createCard(scannedData = {}, orderedData = {}) {
 
   function setBackgroundColor(card, scannedData) {
     const scannedDate = new Date(scannedData.timeStamp || 0);
-    const orderedDate = new Date(scannedData.orderDate || 0);
+    const orderedDate = scannedData.orderDate
+      ? new Date(scannedData.orderDate)
+      : null;
     const today = new Date();
-    const daysDiff = Math.floor((today - orderedDate) / (1000 * 60 * 60 * 24));
+
     if (orderedDate !== null) {
+      const daysDiff = Math.floor(
+        (today - orderedDate) / (1000 * 60 * 60 * 24)
+      );
+
       if (daysDiff >= 4) {
         card.classList.add("red-background");
       } else if (daysDiff > 2 && daysDiff < 4) {
@@ -146,6 +152,7 @@ async function createCard(scannedData = {}, orderedData = {}) {
       }
     } else if (scannedDate !== null) {
       const scannedDateDiff = getBusinessDayDifference(scannedDate, today);
+
       if (scannedDateDiff <= 1) {
         card.classList.add("green-background");
       } else if (scannedDateDiff > 1) {
@@ -207,6 +214,8 @@ function getBusinessDayDifference(date1, date2) {
 
 // Async function to display all the cards
 async function displayCards() {
+  scannedContainer.querySelectorAll(".card").forEach((e) => e.remove());
+  orderedContainer.querySelectorAll(".card").forEach((e) => e.remove());
   const scannedData = await getData("./data/scanned.json");
   const orderedData = await getData("./data/ordered.json");
 
@@ -258,3 +267,7 @@ async function displayCards() {
 }
 
 displayCards();
+
+setTimeout(function () {
+  location.reload();
+}, 60000);
