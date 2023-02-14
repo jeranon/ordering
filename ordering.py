@@ -2,6 +2,10 @@ import json
 import os
 import msvcrt
 import datetime
+import ctypes
+
+#Set the console window title
+ctypes.windll.kernel32.SetConsoleTitleW("Ordering")
 
 class Format:
     end = '\033[0m'
