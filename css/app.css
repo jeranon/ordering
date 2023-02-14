@@ -90,6 +90,7 @@ h3.subtitle {
 }
 
 p.info {
+  clear: left;
   float: left;
   display: table-cell;
   vertical-align: bottom;
