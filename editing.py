@@ -1,6 +1,10 @@
 import json
 import msvcrt
 import os
+import ctypes
+
+#Set the console window title
+ctypes.windll.kernel32.SetConsoleTitleW("Editing")
 
 class Format:
     end = '\033[0m'
