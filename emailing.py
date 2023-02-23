@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from cryptography.fernet import Fernet
 
 def lock_file(file_name):
     with open(file_name, 'r+') as f:
@@ -68,9 +69,18 @@ if __name__ == '__main__':
     file_name = f"data/emailed/ordering - {current_date}.csv"
     save_csv(data, file_name)
 
-    with open("data/credentials.json", "r") as f:
-        credentials = json.load(f)
+    with open("data/key.bin", "rb") as f:
+        key_data = f.read()
+        salt = key_data[:16]
+        key = key_data[16:]
 
+    with open("data/credentials.encrypted", "rb") as f:
+        ciphertext = f.read()[16:]
+
+    cipher = Fernet(key)
+    plaintext = cipher.decrypt(ciphertext)
+
+    credentials = json.loads(plaintext)
     gmail_user = credentials["username"]
     gmail_password = credentials["password"]
     to = credentials["to"]
