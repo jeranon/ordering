@@ -2,6 +2,7 @@ import json
 import msvcrt
 import os
 import ctypes
+from pprint import pprint
 
 #Set the console window title
 ctypes.windll.kernel32.SetConsoleTitleW("Editing")
@@ -109,10 +110,11 @@ def display_menu():
         print_red("Invalid option.")
         display_menu()
 
-def scan():
-    print_blue("Welcome to the page to edit scanned.json\n")
-    sorted_data = display_scanned()
-    print_green("\nEnter the line number of the item you would like to edit, or enter 'x' to return to the home page.")
+def edit(file_path, move_enabled=False):
+    print_blue(f"Welcome to the page to edit {file_path}\n")
+    sorted_data = display_data(file_path)
+    print_green("\nSelect the line number of the item you would like to edit, or enter 'x' to return to the home page.")
+
     key = input().upper()
     if key == 'X':
         home()
@@ -122,17 +124,34 @@ def scan():
         if line_number >= len(sorted_data) or line_number < 0:
             clear()
             print_red("Invalid input. Line number out of range.")
-            return scan()
+            return edit(file_path, move_enabled)
         item = sorted_data[line_number]
         clear()
-        print_yellow(f"\nSelected item: {item}")
-        print_green("\nWould you like to (D)elete this object or (E)dit this object?")
+        print_yellow("Selected item:")
+        pprint(item, indent=4)
+        print_green("\nWould you like to (D)elete this object, (E)dit this object, e(X)it to previous screen")
+        if move_enabled:
+            print_green("or (M)ove this object to another file?")
         key = input().upper()
-        if key == 'D':
-            delete_item(item, 'data/scanned.json')
+        if key == 'X':
+            clear()
+            return edit(file_path, move_enabled)
+        elif move_enabled and key == 'M':
+            if file_path == 'data/ordered.json':
+                move_to_scanned(item)
+                clear()
+                print_green("\nItem has been moved to scanned.json")
+                edit(file_path, move_enabled)
+            elif file_path == 'data/history.json':
+                move_to_ordered(item)
+                clear()
+                print_green("\nItem has been moved to ordered.json")
+                edit(file_path, move_enabled)
+        elif key == 'D':
+            delete_item(item, file_path)
             clear()
             print_green("\nItem has been deleted.")
-            scan()
+            edit(file_path, move_enabled)
         elif key == 'E':
             i = 1
             keys = list(item.keys())
@@ -146,216 +165,98 @@ def scan():
                 line_number = int(input()) - 1
                 if line_number >= len(keys) or line_number < 0:
                     print_red("Invalid input. Line number out of range.")
-                    return scan()
+                    return edit(file_path, move_enabled)
+                key_to_edit = keys[line_number]
+                current_value = item[key_to_edit]
                 clear()
-                print_yellow(f"Editing key: {keys[line_number]}")
+                print_yellow(f"Editing {key_to_edit}: {current_value}")
                 new_value = input("Enter a new value: ")
                 new_item = item.copy()
                 new_item[keys[line_number]] = new_value
-                edit_item(item, new_item, 'data/scanned.json')
+                edit_item(item, new_item, file_path)
                 clear()
                 print_green("\nItem has been edited.")
-                scan()
+                edit(file_path, move_enabled)
             except:
                 clear()
                 print_red("Invalid input. Please enter a valid line number.")
-                return scan()
+                return edit(file_path, move_enabled)
+        elif move_enabled:
+            clear()
+            print_red("Invalid input. Please enter 'D', 'E', or 'M', or 'X'.")
+            return edit(file_path, move_enabled)
         else:
             clear()
-            print_red("Invalid input. Please enter 'D' or 'E'.")
-            return scan()
+            print_red("Invalid input. Please enter 'D' or 'E', or 'X'.")
+            return edit(file_path, move_enabled)
     except:
         clear()
         print_red("Invalid input. Please enter a valid line number.")
-        return scan()
+        return edit(file_path, move_enabled)
+
+def scan():
+    edit('data/scanned.json', move_enabled=False)
 
 def order():
-    print_blue("Welcome to the page to edit ordered.json\n")
-    sorted_data = display_ordered()
-    print_green("\nSelect the line number of the item you would like to edit, or enter 'x' to return to the home page.")
-    
-    key = input().upper()
-    if key == 'X':
-        home()
-        return
-    try:
-        line_number = int(key) - 1
-        if line_number >= len(sorted_data) or line_number < 0:
-            clear()
-            print_red("Invalid input. Line number out of range.")
-            return order()
-        item = sorted_data[line_number]
-        clear()
-        print_yellow(f"\nSelected item: {item}")
-        print_green("\nWould you like to (D)elete this object, (M)ove this object, or (E)dit this object?")
-        key = input().upper()
-        if key == 'M':
-            move_to_scanned(item)
-            clear()
-            print_green("\nItem has been moved to scanned.json")
-            order()
-        elif key == 'D':
-            delete_item(item, 'data/ordered.json')
-            clear()
-            print_green("\nItem has been deleted.")
-            order()
-        elif key == 'E':
-            i = 1
-            keys = list(item.keys())
-            clear()
-            print_yellow("Editing object: ")
-            for k in keys:
-                print(f"{i}. {k}: {item[k]}")
-                i += 1
-            print_green("Which line would you like to edit?")
-            try:
-                line_number = int(input()) - 1
-                if line_number >= len(keys) or line_number < 0:
-                    print_red("Invalid input. Line number out of range.")
-                    return order()
-                clear()
-                print_yellow(f"Editing key: {keys[line_number]}")
-                new_value = input("Enter a new value: ")
-                new_item = item.copy()
-                new_item[keys[line_number]] = new_value
-                edit_item(item, new_item, 'data/ordered.json')
-                clear()
-                print_green("\nItem has been edited.")
-                order()
-            except:
-                clear()
-                print_red("Invalid input. Please enter a valid line number.")
-                return order()
-        else:
-            clear()
-            print_red("Invalid input. Please enter 'D', 'M', or 'E'.")
-            return order()
-    except:
-        clear()
-        print_red("Invalid input. Please enter a valid line number.")
-        return order()
+    edit('data/ordered.json', move_enabled=True)
 
 def history():
-    print_blue("Welcome to the page to edit history.json\n")
-    sorted_data = display_history()
-    print_green("\nSelect the line number of the item you would like to edit, or enter 'x' to return to the home page.")
+    edit('data/history.json', move_enabled=True)
 
-    key = input().upper()
-    if key == 'X':
-        home()
-        return
-    try:
-        line_number = int(key) - 1
-        if line_number >= len(sorted_data) or line_number < 0:
-            clear()
-            print_red("Invalid input. Line number out of range.")
-            return history()
-        item = sorted_data[line_number]
-        clear()
-        print_yellow(f"\nSelected item: {item}")
-        print_green("\nWould you like to (D)elete this object, (M)ove this object, or (E)dit this object?")
-        key = input().upper()
-        if key == 'M':
-            move_to_ordered(item)
-            clear()
-            print_green("\nItem has been moved to ordered.json")
-            history()
-        elif key == 'D':
-            delete_item(item, 'data/history.json')
-            clear()
-            print_green("\nItem has been deleted.")
-            history()
-        elif key == 'E':
-            i = 1
-            keys = list(item.keys())
-            clear()
-            print_yellow("Editing object: ")
-            for k in keys:
-                print(f"{i}. {k}: {item[k]}")
-                i += 1
-            print_green("Which line would you like to edit?")
-            try:
-                line_number = int(input()) - 1
-                if line_number >= len(keys) or line_number < 0:
-                    print_red("Invalid input. Line number out of range.")
-                    return history()
-                clear()
-                print_yellow(f"Editing key: {keys[line_number]}")
-                new_value = input("Enter a new value: ")
-                new_item = item.copy()
-                new_item[keys[line_number]] = new_value
-                edit_item(item, new_item, 'data/history.json')
-                clear()
-                print_green("\nItem has been edited.")
-                history()
-            except:
-                clear()
-                print_red("Invalid input. Please enter a valid line number.")
-                return history()
-        else:
-            clear()
-            print_red("Invalid input. Please enter 'D', 'M', or 'E'.")
-            return history()
-    except:
-        clear()
-        print_red("Invalid input. Please enter a valid line number.")
-        return history()
+def display_data(filename):
+    headers = {
+        "data/scanned.json": "line#ItemCodeSupplierDescriptionQtyScanDate",
+        "data/ordered.json": "line#ItemCodeSupplierDescriptionQtyOrderDate",
+        "data/history.json": "line#ItemCodeSupplierDescriptionQtyReceived",
+    }
+    line_lengths = {
+        "line": 5,
+        "itemCode": 18,
+        "supplier": 18,
+        "description": 40,
+        "orderQuantity": 20,
+        "date": 10,
+    }
 
-def display_scanned():
-    lock_file("data/scanned.json")
-    with open("data/scanned.json", "r") as f:
+    lock_file(filename)
+    with open(filename, "r") as f:
         data = json.load(f)
-    data = sorted(data, key=lambda x: x["timeStamp"], reverse=True)
+
+    if filename == "data/scanned.json":
+        data = sorted(data, key=lambda x: x["timeStamp"], reverse=True)
+    elif filename == "data/ordered.json":
+        data = sorted(data, key=lambda x: x["orderDate"], reverse=True)
+    elif filename == "data/history.json":
+        data = sorted(data, key=lambda x: x["receivedDate"], reverse=True)
+
     data = data[:30]
-    header = "line#ItemCodeSupplierDescriptionQtyScanDate"
-    header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
-    print(" " + Format.underline + header + Format.end + " ")
-    for i, item in enumerate(data):
-        itemCode = item["itemCode"][:18].ljust(18)
-        supplier = item["supplier"][:18].ljust(18)
-        description = item["description"][:40].ljust(40)
-        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
-        timeStamp = item["timeStamp"][:10].ljust(10)
-        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + timeStamp + " |"
-        print(" " + line + " ")
-    return data
 
-def display_ordered():
-    lock_file("data/ordered.json")
-    with open("data/ordered.json", "r") as f:
-        data = json.load(f)
-    data = sorted(data, key=lambda x: x["orderDate"], reverse=True)
-    data = data[:30]
-    header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
-    header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
+    header = headers[filename]
+    header = "\033[1m" + "| " + header[:5].ljust(line_lengths["line"]) + " | " + header[5:13].ljust(
+        line_lengths["itemCode"]
+    ) + " | " + header[13:21].ljust(line_lengths["supplier"]) + " | " + header[21:32].ljust(
+        line_lengths["description"]
+    ) + " | " + header[32:35].ljust(line_lengths["orderQuantity"]) + " | " + header[35:].ljust(
+        line_lengths["date"]
+    ) + " |" + "\033[0m"
     print(" " + Format.underline + header + Format.end + " ")
-    for i, item in enumerate(data):
-        itemCode = item["itemCode"][:18].ljust(18)
-        supplier = item["supplier"][:18].ljust(18)
-        description = item["description"][:40].ljust(40)
-        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
-        orderDate = item["orderDate"][:10].ljust(10)
-        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + orderDate + " |"
-        print(" " + line + " ")
-    return data
 
-def display_history():
-    lock_file("data/history.json")
-    with open("data/history.json", "r") as f:
-        data = json.load(f)
-    sorted_data = sorted(data, key=lambda x: x["receivedDate"], reverse=True)
-    sorted_data = sorted_data[:30]
-    header = "line#ItemCodeSupplierDescriptionQtyReceived"
-    header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
-    print(" " + Format.underline + header + Format.end + " ")
-    for i, item in enumerate(sorted_data):
-        itemCode = item["itemCode"][:18].ljust(18)
-        supplier = item["supplier"][:18].ljust(18)
-        description = item["description"][:40].ljust(40)
-        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
-        receivedDate = item["receivedDate"][:10].ljust(10)
-        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + receivedDate + " |"
+    for i, item in enumerate(data):
+        itemCode = item["itemCode"][: line_lengths["itemCode"]].ljust(line_lengths["itemCode"])
+        supplier = item["supplier"][: line_lengths["supplier"]].ljust(line_lengths["supplier"])
+        description = item["description"][: line_lengths["description"]].ljust(line_lengths["description"])
+        orderQuantity = str(item["orderQuantity"])[: line_lengths["orderQuantity"]].ljust(line_lengths["orderQuantity"])
+
+        if filename == "data/scanned.json":
+            date = item["timeStamp"][: line_lengths["date"]].ljust(line_lengths["date"])
+        elif filename == "data/ordered.json":
+            date = item["orderDate"][: line_lengths["date"]].ljust(line_lengths["date"])
+        elif filename == "data/history.json":
+            date = item["receivedDate"][: line_lengths["date"]].ljust(line_lengths["date"])
+
+        line = "| " + str(i + 1).ljust(line_lengths["line"]) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + date + " |"
         print(" " + line + " ")
-    return sorted_data
+
+    return data
 
 home()
