@@ -64,32 +64,6 @@ def scan():
         scanned_text = first_char + input()
         process_scan(scanned_text)
 
-def process(data_path):
-    data = display_items(data_path)
-    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
-    first_char = msvcrt.getche().decode("utf-8")
-    if first_char == '\x1b':
-        home()
-    else:
-        try:
-            line_number = int(first_char + input())
-            if line_number < 1 or line_number > len(data):
-                raise ValueError("Invalid line number.")
-            process_order(line_number, data)
-            clear()
-            display_items(data_path)
-            order()
-        except ValueError:
-            clear()
-            print_red("Invalid input, please enter a valid line number.")
-            order()
-
-def order():
-    process("data/scanned.json")
-
-def receive():
-    process("data/ordered.json")
-
 def process_scan(scanned_text):
     lock_file("data/current.txt")
     lock_file("data/scanned.json")
@@ -134,52 +108,12 @@ def process_scan(scanned_text):
         print_red("Invalid scan, ignoring input.")
     scan()
 
-def process_common(line_number, source_file_path, dest_file_path, key, value):
-    lock_file(source_file_path)
-    lock_file(dest_file_path)
-    with open(source_file_path, 'r') as f:
+def display_items():
+    lock_file("data/scanned.json")
+    with open("data/scanned.json", "r") as f:
         data = json.load(f)
-    if line_number <1 or line_number > len(data):
-        print_red("Invalid input, please enter a valid line number.")
-        display_items(source_file_path)
-        return
-    item = data[line_number - 1]
-    item[key] = value
-    with open(dest_file_path, 'r') as f:
-        dest_data = json.load(f)
-    dest_data.append(item)
-    with open(dest_file_path, 'w') as f:
-        json.dump(dest_data, f, indent=4)
-    del data[line_number - 1]
-    with open(source_file_path, 'w') as f:
-        json.dump(data, f)
-    clear()
-    print_green("Item has been processed.")
-    process(source_file_path)
-    
-def process_order(line_number, data):
-    key = "orderDate"
-    value = datetime.datetime.now().isoformat()
-    process_common(line_number, "data/scanned.json", "data/ordered.json", key, value)
-
-def process_receive(line_number, data):
-    key = "receivedDate"
-    value = datetime.datetime.now().isoformat()
-    process_common(line_number, "data/ordered.json", "data/history.json", key, value)
-
-def display_items(file_path):
-    lock_file(file_path)
-    with open(file_path, "r") as f:
-        data = json.load(f)
-    if file_path == "data/scanned.json":
-        data = sorted(data, key=lambda x: (x["supplier"], x["itemCode"]))
-        header = "line#ItemCodeSupplierDescriptionQtyScanDate"
-    elif file_path == "data/ordered.json":
-        data = sorted(data, key=lambda x: (x["supplier"], x["itemCode"]))
-        header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
-    else:
-        raise ValueError("Invalid file path.")
-
+    data = sorted(data, key=lambda x: (x["supplier"], x["itemCode"]))
+    header = "line#ItemCodeSupplierDescriptionQtyScanDate"
     header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
     print_blue("Welcome to the Order Page.\n")
     print(" " + Format.underline + header + Format.end + " ")
@@ -187,15 +121,114 @@ def display_items(file_path):
         itemCode = item["itemCode"][:18].ljust(18)
         supplier = item["supplier"][:18].ljust(18)
         description = item["description"][:40].ljust(40)
-        if file_path == "data/scanned.json":
-            orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
-            timeStamp = item["timeStamp"][:10].ljust(10)
-            line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + timeStamp + " |"
-        elif file_path == "data/ordered.json":
-            orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
-            orderDate = item["orderDate"][:10].ljust(10)
-            line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + orderDate + " |"
+        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
+        timeStamp = item["timeStamp"][:10].ljust(10)
+        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + timeStamp + " |"
         print(" " + line + " ")
     return data
+
+def process_order(line_number, data):
+    lock_file("data/ordered.json")
+    lock_file("data/scanned.json")
+    item = data[line_number - 1]
+    item["orderDate"] = datetime.datetime.now().isoformat()
+    with open("data/ordered.json", "r") as f:
+        ordered_data = json.load(f)
+    ordered_data.append(item)
+    with open("data/ordered.json", "w") as f:
+        json.dump(ordered_data, f, indent=4)
+    del data[line_number - 1]
+    with open("data/scanned.json", "w") as f:
+        json.dump(data, f)
+    clear()
+    print_green("Item has been ordered.")
+    display_items()
+    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
+    first_char = msvcrt.getche().decode("utf-8")
+    if first_char == '\x1b':
+        home()
+    else:
+        try:
+            line_number = int(first_char + input())
+            if line_number < 1 or line_number > len(data):
+                raise ValueError("Invalid line number.")
+            process_order(line_number, data)
+        except ValueError:
+            clear()
+            print_red("Invalid input, please enter a valid line number.")
+            order()
+
+def order():
+    data = display_items()
+    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
+    first_char = msvcrt.getche().decode("utf-8")
+    if first_char == '\x1b':
+        home()
+    else:
+        try:
+            line_number = int(first_char + input())
+            if line_number < 1 or line_number > len(data):
+                raise ValueError("Invalid line number.")
+            process_order(line_number, data)
+            clear()
+            display_items()
+            order()
+        except ValueError:
+            clear()
+            print_red("Invalid input, please enter a valid line number.")
+            order()
+
+def receive():
+    data = get_ordered_items()
+    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
+    first_char = msvcrt.getche().decode("utf-8")
+    if first_char == '\x1b':
+        home()
+    else:
+        try:
+            line_number = int(first_char + input())
+            if line_number < 1 or line_number > len(data):
+                raise ValueError("Invalid line number.")
+            process_receive(line_number, data)
+        except ValueError:
+            clear()
+            print_red("Invalid input, please enter a valid line number.")
+            receive()
+
+def process_receive(line_number, data):
+    lock_file("data/history.json")
+    lock_file("data/ordered.json")
+    item = data[line_number - 1]
+    item["receivedDate"] = datetime.datetime.now().isoformat()
+    with open("data/history.json", "r") as f:
+        history_data = json.load(f)
+    history_data.append(item)
+    with open("data/history.json", "w") as f:
+        json.dump(history_data, f, indent=4)
+    del data[line_number - 1]
+    with open("data/ordered.json", "w") as f:
+        json.dump(data, f)
+    clear()
+    print_green("Item has been received and has been archived.")
+    receive()
+
+def get_ordered_items():
+    lock_file("data/ordered.json")
+    with open("data/ordered.json", "r") as f:
+        data = json.load(f)
+    sortedData = sorted(data, key=lambda x: (x["supplier"], x["itemCode"]))
+    header = "line#ItemCodeSupplierDescriptionQtyOrderDate"
+    header = "\033[1m" + "| " + header[:5].ljust(5) + " | " + header[5:13].ljust(18) + " | " + header[13:21].ljust(18) + " | " + header[21:32].ljust(40) + " | " + header[32:35].ljust(20) + " | " + header[35:].ljust(10) + " |" + "\033[0m"
+    print_blue("Welcome to the Receive Page.\n")
+    print(" " + Format.underline + header + Format.end + " ")
+    for i, item in enumerate(sortedData):
+        itemCode = item["itemCode"][:18].ljust(18)
+        supplier = item["supplier"][:18].ljust(18)
+        description = item["description"][:40].ljust(40)
+        orderQuantity = str(item["orderQuantity"])[:20].ljust(20)
+        orderDate = item["orderDate"][:10].ljust(10)
+        line = "| " + str(i+1).ljust(5) + " | " + itemCode + " | " + supplier + " | " + description + " | " + orderQuantity + " | " + orderDate + " |"
+        print(" " + line + " ")
+    return sortedData
 
 home()
