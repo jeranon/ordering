@@ -40,13 +40,13 @@ def print_blue(text):
 def home(): 
     display_menu()
 
-def display_menu(): 
+def display_menu():
     clear() 
     print_blue("Welcome to the Home page.\n") 
     options = {'S': scan, 'O': order, 'R': receive}
     for option in options: 
         print_green(f"Press '{option}' to navigate to the {options[option].__name__} page.")
-    key = msvcrt.getch().decode("utf-8").upper()
+    key = input().strip().upper()
     if key in options: 
         clear() 
         options[key]()
@@ -56,12 +56,11 @@ def display_menu():
 
 def scan():
     print_blue("Welcome to the Scan page.\n")
-    print_green("Scan a barcode or Press Escape to return to the Home page.")
-    first_char = msvcrt.getche().decode("utf-8")
-    if first_char == '\x1b':
+    print_green("Scan a barcode or Press X to return to the Home page.")
+    scanned_text = input().strip()
+    if scanned_text.upper() == 'X':
         home()
     else:
-        scanned_text = first_char + input()
         process_scan(scanned_text)
 
 def process_scan(scanned_text):
@@ -143,13 +142,13 @@ def process_order(line_number, data):
     clear()
     print_green("Item has been ordered.")
     display_items()
-    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
-    first_char = msvcrt.getche().decode("utf-8")
-    if first_char == '\x1b':
+    print_green("\nEnter the line number of the item you want to process, or press X to return to the Home page.")
+    user_input = input().upper()
+    if user_input == "X":
         home()
     else:
         try:
-            line_number = int(first_char + input())
+            line_number = int(user_input)
             if line_number < 1 or line_number > len(data):
                 raise ValueError("Invalid line number.")
             process_order(line_number, data)
@@ -160,19 +159,16 @@ def process_order(line_number, data):
 
 def order():
     data = display_items()
-    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
-    first_char = msvcrt.getche().decode("utf-8")
-    if first_char == '\x1b':
+    print_green("\nEnter the line number of the item you want to process, or press X to return to the Home page.")
+    user_input = input().upper()
+    if user_input == "X":
         home()
     else:
         try:
-            line_number = int(first_char + input())
+            line_number = int(user_input)
             if line_number < 1 or line_number > len(data):
                 raise ValueError("Invalid line number.")
             process_order(line_number, data)
-            clear()
-            display_items()
-            order()
         except ValueError:
             clear()
             print_red("Invalid input, please enter a valid line number.")
@@ -180,13 +176,13 @@ def order():
 
 def receive():
     data = get_ordered_items()
-    print_green("\nEnter the line number of the item you want to process, or press Escape to return to the Home page.")
-    first_char = msvcrt.getche().decode("utf-8")
-    if first_char == '\x1b':
+    print_green("\nEnter the line number of the item you want to process, or press X to return to the Home page.")
+    user_input = input().upper()
+    if user_input == "X":
         home()
     else:
         try:
-            line_number = int(first_char + input())
+            line_number = int(user_input)
             if line_number < 1 or line_number > len(data):
                 raise ValueError("Invalid line number.")
             process_receive(line_number, data)
