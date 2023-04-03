@@ -12,6 +12,14 @@
 		<div id="ordered">
 			<h1>Ordered</h1>
 		</div>
+		<script>
+			// Check if the current URL starts with "file://"
+			if (window.location.protocol === "file:") {
+			// Redirect to "http://localhost:8000"
+			window.location.href = "http://localhost:8000";
+			}
+		</script>
+
 		<script src="js/app.js"></script>
 	</body>
 </html>
