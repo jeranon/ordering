@@ -142,10 +142,13 @@ def process_order(line_number, data):
     clear()
     print_green("Item has been ordered.")
     display_items()
-    print_green("\nEnter the line number of the item you want to process, or press X to return to the Home page.")
+    print_green("\nEnter the line number of the item you want to process, press X to return to the Home page, or press R to refresh.")
     user_input = input().upper()
     if user_input == "X":
         home()
+    elif user_input == "R":
+        clear()
+        order()
     else:
         try:
             line_number = int(user_input)
