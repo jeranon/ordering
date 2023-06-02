@@ -131,35 +131,33 @@ async function createCard(scannedData = {}, orderedData = {}) {
 
   // Function to set the background color based on the business day difference
 
-  function setBackgroundColor(card, scannedData) {
-    const scannedDate = new Date(scannedData.timeStamp || 0);
-    const orderedDate = scannedData.orderDate
-      ? new Date(scannedData.orderDate)
-      : null;
-    const today = new Date();
+function setBackgroundColor(card, scannedData) {
+  const scannedDate = new Date(scannedData.timeStamp || 0);
+  const orderedDate = scannedData.orderDate ? new Date(scannedData.orderDate) : null;
+  const today = new Date();
 
-    if (orderedDate !== null) {
-      const daysDiff = Math.floor(
-        (today - orderedDate) / (1000 * 60 * 60 * 24)
-      );
+  if (orderedDate !== null) {
+    const daysDiff = Math.floor((today - orderedDate) / (1000 * 60 * 60 * 24));
 
-      if (daysDiff >= 4) {
-        card.classList.add("red-background");
-      } else if (daysDiff > 2 && daysDiff < 4) {
-        card.classList.add("yellow-background");
-      } else if (daysDiff <= 2) {
-        card.classList.add("green-background");
-      }
-    } else if (scannedDate !== null) {
-      const scannedDateDiff = getBusinessDayDifference(scannedDate, today);
+    if (daysDiff <= 1) {
+      card.classList.add("green-background");
+    } else if (daysDiff >= 2 && daysDiff < 4) {
+      card.classList.add("yellow-background");
+    } else if (daysDiff >= 4) {
+      card.classList.add("red-background");
+    }
+  } else if (scannedDate !== null) {
+    const scannedDateDiff = getBusinessDayDifference(scannedDate, today);
 
-      if (scannedDateDiff <= 1) {
-        card.classList.add("green-background");
-      } else if (scannedDateDiff > 1) {
-        card.classList.add("red-background");
-      }
+    if (scannedDateDiff <= 1) {
+      card.classList.add("green-background");
+    } else if (scannedDateDiff > 1 && scannedDateDiff < 4) {
+      card.classList.add("yellow-background");
+    } else if (scannedDateDiff >= 4) {
+      card.classList.add("red-background");
     }
   }
+}
 
   // Determine the difference between the ordered date and the current date
   let orderedDateDiff = null;
@@ -191,6 +189,28 @@ async function createCard(scannedData = {}, orderedData = {}) {
   content.appendChild(index);
 
   setBackgroundColor(card, scannedData);
+  
+  card.addEventListener("click", function() {
+    navigator.clipboard.writeText(title.textContent).then(function() {
+      console.log("Copying to clipboard was successful!");
+      // Get the overlay and message elements
+      var overlay = document.getElementById("overlay");
+      var message = document.getElementById("overlayMessage");
+
+      // Set the message text
+      message.textContent = "The text " + title.textContent + " was successfully copied to the clipboard";
+
+      // Show the overlay
+      overlay.style.display = "flex";
+
+      // Hide the overlay after 1.5 seconds
+      setTimeout(function() {
+        overlay.style.display = "none";
+      }, 1500);
+    }, function(err) {
+      console.error("Could not copy text: ", err);
+    });
+  });
 
   return card;
 }
@@ -202,13 +222,19 @@ function getBusinessDayDifference(date1, date2) {
   let businessDays = Math.floor(diff / oneDay);
 
   // Subtract weekends from the difference
-  let start = date1;
-  while (start < date2) {
-    if (start.getDay() === 0 || start.getDay() === 6) {
-      businessDays--;
+  let start = new Date(Math.min(date1.getTime(), date2.getTime()));
+  let end = new Date(Math.max(date1.getTime(), date2.getTime()));
+  let dayCount = 0;
+
+  while (start <= end) {
+    let day = start.getDay();
+    if (day !== 0 && day !== 6) {
+      dayCount++;
     }
-    start = new Date(start.getTime() + oneDay);
+    start.setDate(start.getDate() + 1);
   }
+
+  businessDays -= dayCount;
   return businessDays;
 }
 
