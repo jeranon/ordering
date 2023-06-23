@@ -100,10 +100,13 @@ p.info {
 p.index {
   font-size: 12px;
   color: #777;
-  float: right;
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 0;
+  right: 0;
+  transform-origin: bottom right;
+  transform: rotate(-90deg) translateX(100%) translateY(0px);
+  padding: 5px;
+  white-space: nowrap;
 }
 
 .red-background {
